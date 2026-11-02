@@ -2,449 +2,1229 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CodeForge - Online Judge</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CodeForge – Mini Online Judge</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <style>
-* { box-sizing: border-box; }
-
-body {
+  :root {
+    --bg: #0e1117;
+    --bg-soft: #151a23;
+    --panel: #12161e;
+    --line: #252c3a;
+    --text: #e6e9ef;
+    --muted: #8b93a7;
+    --accent: #ffa116;
+    --green: #2cbb5d;
+    --red: #ef4743;
+    --yellow: #ffc01e;
+    --blue: #4da3ff;
+    --code-font: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+    --topbar-h: 52px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
     margin: 0;
-    background: #111318;
-    color: #e5e7eb;
-    font-family: Arial, sans-serif;
-}
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  button, select, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: 0.55; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #2b3345; border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: #38425a; }
 
-header {
-    height: 62px;
-    background: #191c23;
-    border-bottom: 1px solid #303541;
+  /* ---------- Header ---------- */
+  .topbar {
+    height: var(--topbar-h);
+    flex: none;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-}
-
-.logo { font-size: 22px; font-weight: bold; color: #60a5fa; }
-.logo span { color: white; }
-
-.header-right { color: #9ca3af; font-size: 13px; }
-
-.workspace {
-    display: grid;
-    grid-template-columns: 245px minmax(300px, 1fr) minmax(350px, 1.15fr);
-    height: calc(100vh - 62px);
-}
-
-.sidebar, .description, .editor-panel {
-    min-width: 0;
-    overflow: auto;
-    border-right: 1px solid #303541;
-}
-
-.sidebar { background: #191c23; padding: 18px 12px; }
-.description { padding: 24px; }
-.editor-panel { background: #191c23; display: flex; flex-direction: column; }
-
-.section-title {
-    font-size: 12px;
-    color: #9ca3af;
-    font-weight: bold;
-    letter-spacing: 1px;
-    margin: 8px 10px 16px;
-}
-
-.problem-item {
-    padding: 13px 12px;
-    border-radius: 7px;
-    cursor: pointer;
-    margin-bottom: 5px;
-    font-size: 14px;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.problem-item:hover { background: #282e3a; }
-.problem-item.active { background: #263b58; color: #93c5fd; }
-
-.difficulty { font-size: 11px; }
-.easy { color: #4ade80; }
-.medium { color: #fbbf24; }
-.hard { color: #f87171; }
-
-h1 { font-size: 23px; margin: 0 0 16px; }
-h2 { font-size: 16px; margin-top: 26px; }
-.description p, .description li {
-    color: #c5cad4;
-    line-height: 1.7;
-    font-size: 14px;
-}
-
-.example {
-    background: #1c2029;
-    border: 1px solid #343b49;
-    padding: 13px;
-    border-radius: 7px;
-    margin: 12px 0;
-    font-size: 13px;
-}
-
-.example pre { white-space: pre-wrap; color: #d1d5db; }
-
-.toolbar {
-    height: 48px;
-    border-bottom: 1px solid #303541;
-    display: flex;
-    align-items: center;
+    gap: 12px;
     padding: 0 16px;
-    justify-content: space-between;
-    color: #cbd5e1;
-    font-size: 13px;
-}
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .menu-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: 0.2px; }
+  .brand-logo {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #ff6a3d);
+    color: #1a1204;
+    font: 700 14px var(--code-font);
+  }
+  .brand small { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .spacer { flex: 1; }
+  .hint-keys { color: var(--muted); font-size: 12px; }
+  kbd {
+    background: #1d2330;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0 5px;
+    font: 11px var(--code-font);
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); }
+  .status-pill.online .status-dot { background: var(--green); }
+  .status-pill.offline .status-dot { background: var(--red); }
 
-.editor-label { color: #60a5fa; }
-
-#code {
+  /* ---------- Layout ---------- */
+  .layout {
     flex: 1;
-    min-height: 220px;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr) minmax(0, 1.15fr);
+  }
+  .sidebar, .problem-panel, .editor-panel {
+    min-height: 0;
+    min-width: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+  }
+  .editor-panel { border-right: none; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar { display: flex; flex-direction: column; }
+  .sidebar-head { padding: 12px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; }
+  .search-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 2px 12px;
+    font-size: 12px;
+  }
+  .chip.active { color: #1a1204; background: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .problem-count { color: var(--muted); font-size: 12px; }
+  .problem-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
+  .problem-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .problem-item:hover { background: #181e29; }
+  .problem-item.active { background: #1c2331; border-color: #2e3850; }
+  .problem-num { color: var(--muted); font-size: 12px; min-width: 22px; text-align: right; }
+  .problem-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .solved-mark { color: var(--green); width: 14px; text-align: center; }
+  .diff { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; }
+  .diff.Easy { color: var(--green); background: rgba(44, 187, 93, 0.12); }
+  .diff.Medium { color: var(--yellow); background: rgba(255, 192, 30, 0.12); }
+  .diff.Hard { color: var(--red); background: rgba(239, 71, 67, 0.12); }
+  .list-message { padding: 16px 12px; color: var(--muted); }
+  .list-message button {
+    margin-top: 10px;
+    background: var(--accent);
+    color: #1a1204;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 600;
+  }
+  .sidebar-backdrop { display: none; }
+
+  /* ---------- Problem panel ---------- */
+  .problem-panel { overflow-y: auto; padding: 20px 24px 40px; }
+  .problem-title { margin: 0 0 8px; font-size: 22px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+  .section-title { margin: 22px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+  .problem-panel p { margin: 0 0 10px; }
+  .problem-panel ul { margin: 0; padding-left: 20px; }
+  code, .inline-code {
+    font-family: var(--code-font);
+    font-size: 12.5px;
+    background: #1d2330;
+    border: 1px solid #2a3244;
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+  .example { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  .example-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+  .example-head button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+  }
+  .example-head button:hover { color: var(--text); border-color: #3a4560; }
+  .io-label { color: var(--muted); font-size: 12px; margin: 6px 0 2px; }
+  pre.block {
+    margin: 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: 13px/1.5 var(--code-font);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 260px;
+    overflow: auto;
+  }
+  .example-why { margin-top: 8px; color: var(--muted); font-size: 13px; }
+  .empty-state { color: var(--muted); padding: 40px 10px; text-align: center; }
+
+  /* ---------- Editor panel ---------- */
+  .editor-panel { display: flex; flex-direction: column; }
+  .toolbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+  }
+  .select {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    outline: none;
+  }
+  .select:focus { border-color: var(--accent); }
+  .save-note { color: var(--muted); font-size: 12px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #1b2130;
+    padding: 6px 14px;
+    font-weight: 600;
+  }
+  .btn:hover:not(:disabled) { background: #222a3c; }
+  .btn.primary { background: var(--green); border-color: var(--green); color: #04150a; }
+  .btn.primary:hover:not(:disabled) { background: #36cf6c; }
+  .btn.ghost { font-weight: 400; color: var(--muted); }
+  .editor-wrap { flex: 1 1 55%; min-height: 160px; position: relative; background: #0e1117; }
+  #editor { position: absolute; inset: 0; }
+  .editor-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+  .fallback-editor {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     resize: none;
-    background: #111318;
-    color: #d1e7ff;
     border: none;
     outline: none;
-    padding: 20px;
-    font-family: Consolas, monospace;
-    font-size: 14px;
-    line-height: 1.7;
+    background: #0e1117;
+    color: var(--text);
+    padding: 12px;
+    font: 14px/1.5 var(--code-font);
     tab-size: 4;
-}
+  }
 
-.input-area { padding: 14px 16px; border-top: 1px solid #303541; }
-
-.input-area label { font-size: 13px; color: #9ca3af; }
-
-#customInput {
-    margin-top: 9px;
-    width: 100%;
-    height: 65px;
-    resize: vertical;
-    background: #111318;
-    color: white;
-    border: 1px solid #394150;
-    border-radius: 6px;
-    padding: 10px;
-    font-family: Consolas, monospace;
-}
-
-.actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 12px 16px;
-    border-top: 1px solid #303541;
-}
-
-button {
-    padding: 10px 19px;
+  /* ---------- Bottom panel ---------- */
+  .bottom { flex: 0 0 38%; min-height: 160px; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+  .tabs { flex: none; display: flex; background: var(--bg-soft); border-bottom: 1px solid var(--line); }
+  .tab {
+    background: transparent;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-}
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    padding: 8px 16px;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .pane { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+  .pane[hidden] { display: none; }
+  #customInput {
+    width: 100%;
+    height: 100%;
+    min-height: 90px;
+    resize: none;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    outline: none;
+    font: 13px/1.5 var(--code-font);
+  }
+  #customInput:focus { border-color: var(--accent); }
 
-.run-btn { background: #303744; color: white; }
-.submit-btn { background: #2563eb; color: white; }
-button:disabled { opacity: .5; cursor: wait; }
+  /* ---------- Results ---------- */
+  .result-muted { color: var(--muted); }
+  .loading { display: flex; align-items: center; gap: 12px; color: var(--muted); }
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #2b3345;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex: none;
+  }
+  .btn .spinner { width: 14px; height: 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .verdict { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .verdict.ok { color: var(--green); }
+  .verdict.bad { color: var(--red); }
+  .verdict.warn { color: var(--yellow); }
+  .verdict.neutral { color: var(--muted); }
+  .result-meta { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+  .out-title { margin: 12px 0 4px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+  pre.block.error { border-color: #5a2a2a; background: #1c1214; color: #ffb4b0; }
+  pre.block.warn { border-color: #5a4a1d; background: #1b1810; color: #ffe29a; }
+  .notice { margin-top: 10px; padding: 8px 10px; border-radius: 8px; background: rgba(77, 163, 255, 0.1); border: 1px solid rgba(77, 163, 255, 0.35); color: #b9dcff; }
+  .error-box { padding: 10px 12px; border-radius: 8px; background: #1c1214; border: 1px solid #5a2a2a; color: #ffb4b0; }
+  .case-list { display: grid; gap: 6px; margin-top: 12px; }
+  .case-row { border: 1px solid var(--line); border-radius: 8px; background: var(--bg-soft); }
+  .case-row > summary, .case-row > .case-head { display: flex; align-items: center; gap: 10px; padding: 7px 10px; list-style: none; }
+  .case-row > summary { cursor: pointer; }
+  .case-row > summary::-webkit-details-marker { display: none; }
+  .case-name { font-weight: 600; }
+  .case-badge { font-size: 12px; font-weight: 600; padding: 1px 10px; border-radius: 999px; }
+  .case-badge.ok { color: var(--green); background: rgba(44, 187, 93, 0.12); }
+  .case-badge.bad { color: var(--red); background: rgba(239, 71, 67, 0.12); }
+  .case-badge.warn { color: var(--yellow); background: rgba(255, 192, 30, 0.12); }
+  .case-note { color: var(--muted); font-size: 12px; }
+  .case-body { padding: 4px 10px 10px; }
 
-.result-panel {
-    min-height: 125px;
-    max-height: 210px;
-    overflow: auto;
-    background: #111318;
-    border-top: 1px solid #303541;
-    padding: 15px 18px;
-}
-
-.result-title { font-size: 13px; color: #9ca3af; margin-bottom: 10px; }
-#output { white-space: pre-wrap; font: 13px/1.6 Consolas, monospace; }
-.accepted { color: #4ade80; }
-.failed { color: #f87171; }
-
-.loading { color: #fbbf24; padding: 15px; }
-
-@media (max-width: 950px) {
-    .workspace {
-        grid-template-columns: 190px 1fr;
-        height: auto;
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+    .menu-btn { display: inline-grid; place-items: center; }
+    .hint-keys { display: none; }
+    .sidebar {
+      position: fixed;
+      top: var(--topbar-h);
+      bottom: 0;
+      left: 0;
+      width: 290px;
+      z-index: 30;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
     }
-    .sidebar { grid-row: span 2; }
-    .description, .editor-panel { min-height: 550px; }
-}
-
-@media (max-width: 650px) {
-    .workspace { display: flex; flex-direction: column; height: auto; }
-    .sidebar { max-height: 240px; }
-    .description { min-height: auto; }
-    .editor-panel { min-height: 650px; }
-}
+    body.sidebar-open .sidebar { transform: none; }
+    body.sidebar-open .sidebar-backdrop {
+      display: block;
+      position: fixed;
+      inset: var(--topbar-h) 0 0 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 20;
+    }
+  }
+  @media (max-width: 760px) {
+    html, body { height: auto; }
+    body { min-height: 100%; overflow: auto; }
+    .topbar { position: sticky; top: 0; z-index: 40; }
+    .brand small { display: none; }
+    .layout { display: flex; flex-direction: column; overflow: visible; }
+    .problem-panel { overflow: visible; border-right: none; border-bottom: 1px solid var(--line); padding: 16px; }
+    .editor-panel { min-height: 0; }
+    .editor-wrap { flex: none; height: 380px; }
+    .bottom { flex: none; height: 320px; }
+  }
 </style>
 </head>
-
 <body>
 
-<header>
-    <div class="logo">Code<span>Forge</span></div>
-    <div class="header-right">Python 3 &nbsp; | &nbsp; Online Coding Judge</div>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="Show problem list" title="Problems">&#9776;</button>
+  <div class="brand">
+    <span class="brand-logo">&lt;/&gt;</span>
+    <span>CodeForge <small>Mini Online Judge</small></span>
+  </div>
+  <div class="spacer"></div>
+  <span class="hint-keys"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Run &nbsp; <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Enter</kbd> Submit</span>
+  <span class="status-pill" id="serverStatus"><span class="status-dot"></span><span id="serverStatusText">Connecting...</span></span>
 </header>
 
-<div class="workspace">
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="Problems">
+    <div class="sidebar-head">
+      <input class="search-input" id="searchInput" type="search" placeholder="Search problems..." autocomplete="off">
+      <div class="chips" id="filterChips"></div>
+      <div class="problem-count" id="problemCount"></div>
+    </div>
+    <ul class="problem-list" id="problemList">
+      <li class="list-message">Loading problems...</li>
+    </ul>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <aside class="sidebar">
-        <div class="section-title">PROBLEMS</div>
-        <div id="problemList" class="loading">Loading problems...</div>
-    </aside>
+  <section class="problem-panel" id="problemPanel" aria-label="Problem description">
+    <div class="empty-state">Select a problem from the list to begin.</div>
+  </section>
 
-    <main class="description">
-        <h1 id="problemTitle">Select a problem</h1>
-        <div id="difficulty"></div>
+  <section class="editor-panel" aria-label="Code editor">
+    <div class="toolbar">
+      <select class="select" id="languageSelect" aria-label="Programming language"></select>
+      <span class="save-note" id="saveNote">Code is saved per problem and language.</span>
+      <span class="spacer"></span>
+      <button class="btn ghost" id="resetBtn" title="Reset to the starter code">Reset</button>
+      <button class="btn" id="runBtn">&#9654; Run Code</button>
+      <button class="btn primary" id="submitBtn">Submit</button>
+    </div>
 
-        <h2>Description</h2>
-        <p id="problemDescription">Choose a problem from the sidebar to get started.</p>
+    <div class="editor-wrap">
+      <div id="editor"></div>
+      <div class="editor-loading" id="editorLoading">Loading editor...</div>
+    </div>
 
-        <h2>Example</h2>
-        <div class="example">
-            <strong>Input</strong>
-            <pre id="exampleInput"></pre>
-            <strong>Output</strong>
-            <pre id="exampleOutput"></pre>
-        </div>
-
-        <h2>Instructions</h2>
-        <p>Write your Python 3 solution in the editor. Use standard input and print your answer to standard output.</p>
-    </main>
-
-    <section class="editor-panel">
-        <div class="toolbar">
-            <span class="editor-label">PYTHON 3</span>
-            <span>Code Editor</span>
-        </div>
-
-        <div id="code" style="flex:1; min-height:220px;"></div>
-
-        <div class="input-area">
-            <label for="customInput">Custom Input</label>
-            <textarea id="customInput" placeholder="Enter input for your program..."></textarea>
-        </div>
-
-        <div class="actions">
-            <button class="run-btn" id="runBtn" onclick="runCode()">▶ Run Code</button>
-            <button class="submit-btn" id="submitBtn" onclick="submitCode()">✓ Submit</button>
-        </div>
-
-        <div class="result-panel">
-            <div class="result-title">EXECUTION RESULT</div>
-            <div id="output">Your output will appear here.</div>
-        </div>
-    </section>
-
+    <div class="bottom">
+      <div class="tabs">
+        <button class="tab active" id="tabInput" type="button">Custom Input</button>
+        <button class="tab" id="tabResult" type="button">Result</button>
+      </div>
+      <div class="pane" id="inputPane">
+        <textarea id="customInput" spellcheck="false" placeholder="Type the input for your program here, then press Run Code."></textarea>
+      </div>
+      <div class="pane" id="resultPane" hidden>
+        <div class="result-muted" id="resultContent">Run your code or submit it to see the result here.</div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
+"use strict";
+
+/* =====================================================================
+   CodeForge frontend
+   ===================================================================== */
+
 const API = "https://code-forge-w65e.onrender.com";
-let problems = [];
-let selectedProblem = null;
 
-const problemList = document.getElementById("problemList");
-function getCode() {
-    return editor ? editor.getValue() : "";
-}
+const LANGUAGES = [
+  { id: 71, name: "Python 3", monaco: "python" },
+  { id: 50, name: "C (GCC)", monaco: "c" },
+  { id: 54, name: "C++ (G++)", monaco: "cpp" },
+  { id: 62, name: "Java", monaco: "java" },
+  { id: 63, name: "JavaScript (Node.js)", monaco: "javascript" }
+];
+const DEFAULT_LANGUAGE_ID = 71;
+const REQUEST_TIMEOUT_MS = 100000;
+const MONACO_BASE = "https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min";
+const STORAGE_PREFIX = "codeforge:";
 
-function setCode(value) {
-    if (editor) editor.setValue(value);
-}
-const output = document.getElementById("output");
+const state = {
+  problems: [],
+  currentId: null,
+  languageId: DEFAULT_LANGUAGE_ID,
+  difficulty: "All",
+  search: "",
+  busy: false,
+  solved: new Set(),
+  loadTimer: null
+};
 
-async function loadProblems() {
-    try {
-        const response = await fetch(`${API}/problems`);
-        if (!response.ok) throw new Error("Could not load problems");
+const editor = {
+  kind: "none",       // "monaco" or "textarea"
+  ready: false,
+  impl: null,
+  suppressChange: false,
+  getValue: function () { return ""; },
+  setValue: function () {},
+  setLanguage: function () {}
+};
 
-        problems = await response.json();
-        if (!Array.isArray(problems)) {
-            throw new Error("The backend did not return a problem list.");
-        }
-        problemList.innerHTML = "";
+/* ---------------------------------------------------------------------
+   Small helpers
+   --------------------------------------------------------------------- */
+function byId(id) { return document.getElementById(id); }
 
-        problems.forEach(problem => {
-            const item = document.createElement("div");
-            item.className = "problem-item";
-            item.innerHTML = `
-                <span>${problem.id}. ${problem.title}</span>
-                <span class="difficulty ${problem.difficulty.toLowerCase()}">
-                    ${problem.difficulty}
-                </span>
-            `;
-            item.addEventListener("click", () => selectProblem(problem.id, item));
-            problemList.appendChild(item);
-        });
+const els = {
+  menuBtn: byId("menuBtn"),
+  sidebar: byId("sidebar"),
+  sidebarBackdrop: byId("sidebarBackdrop"),
+  searchInput: byId("searchInput"),
+  filterChips: byId("filterChips"),
+  problemCount: byId("problemCount"),
+  problemList: byId("problemList"),
+  problemPanel: byId("problemPanel"),
+  languageSelect: byId("languageSelect"),
+  saveNote: byId("saveNote"),
+  resetBtn: byId("resetBtn"),
+  runBtn: byId("runBtn"),
+  submitBtn: byId("submitBtn"),
+  editorHost: byId("editor"),
+  editorLoading: byId("editorLoading"),
+  tabInput: byId("tabInput"),
+  tabResult: byId("tabResult"),
+  inputPane: byId("inputPane"),
+  resultPane: byId("resultPane"),
+  customInput: byId("customInput"),
+  resultContent: byId("resultContent"),
+  serverStatus: byId("serverStatus"),
+  serverStatusText: byId("serverStatusText")
+};
 
-        if (problems.length) {
-            selectProblem(problems[0].id, problemList.firstElementChild);
-        }
-    } catch (error) {
-        problemList.textContent = "Unable to load problems. Check the backend connection.";
-        console.error("Load Problems Error:", error);
-    }
-}
+const store = {
+  get: function (key) {
+    try { return window.localStorage.getItem(STORAGE_PREFIX + key); } catch (e) { return null; }
+  },
+  set: function (key, value) {
+    try { window.localStorage.setItem(STORAGE_PREFIX + key, value); } catch (e) { /* storage may be blocked */ }
+  },
+  remove: function (key) {
+    try { window.localStorage.removeItem(STORAGE_PREFIX + key); } catch (e) { /* ignore */ }
+  }
+};
 
-function selectProblem(id, element) {
-    selectedProblem = problems.find(p => p.id === id);
-    if (!selectedProblem) return;
-
-    document.querySelectorAll(".problem-item").forEach(item => {
-        item.classList.remove("active");
+/* Build DOM nodes safely (everything is added as text, never as HTML). */
+function h(tag, attrs) {
+  const el = document.createElement(tag);
+  if (attrs) {
+    Object.keys(attrs).forEach(function (key) {
+      const value = attrs[key];
+      if (value === null || value === undefined || value === false) { return; }
+      if (key === "class") { el.className = value; }
+      else if (key === "text") { el.textContent = value; }
+      else if (key.indexOf("on") === 0 && typeof value === "function") { el.addEventListener(key.slice(2), value); }
+      else { el.setAttribute(key, value); }
     });
-    element.classList.add("active");
-
-    document.getElementById("problemTitle").textContent =
-        `${selectedProblem.id}. ${selectedProblem.title}`;
-
-    const difficulty = document.getElementById("difficulty");
-    difficulty.textContent = selectedProblem.difficulty;
-    difficulty.className = `difficulty ${selectedProblem.difficulty.toLowerCase()}`;
-
-    document.getElementById("problemDescription").textContent =
-        selectedProblem.description;
-
-    document.getElementById("exampleInput").textContent =
-        selectedProblem.example_input;
-
-    document.getElementById("exampleOutput").textContent =
-        selectedProblem.example_output;
-
-    setCode(selectedProblem.starter);
-    document.getElementById("customInput").value =
-        selectedProblem.example_input;
-
-    output.textContent = "Ready to run your solution.";
-    output.className = "";
+  }
+  for (let i = 2; i < arguments.length; i++) {
+    const kids = Array.isArray(arguments[i]) ? arguments[i] : [arguments[i]];
+    kids.forEach(function (kid) {
+      if (kid === null || kid === undefined || kid === false) { return; }
+      el.appendChild(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    });
+  }
+  return el;
 }
+
+/* Turn `text with backticks` into text + <code> nodes. */
+function richText(text) {
+  const parts = String(text).split("`");
+  return parts.map(function (part, i) {
+    return i % 2 === 1 ? h("code", { text: part }) : document.createTextNode(part);
+  });
+}
+
+function currentProblem() {
+  for (let i = 0; i < state.problems.length; i++) {
+    if (state.problems[i].id === state.currentId) { return state.problems[i]; }
+  }
+  return null;
+}
+
+function languageById(id) {
+  for (let i = 0; i < LANGUAGES.length; i++) {
+    if (LANGUAGES[i].id === id) { return LANGUAGES[i]; }
+  }
+  return LANGUAGES[0];
+}
+
+function codeKey(problemId, languageId) { return "code:" + problemId + ":" + languageId; }
+
+function formatTime(t) {
+  if (t === null || t === undefined || t === "") { return ""; }
+  return t + " s";
+}
+
+function formatMemory(kb) {
+  if (kb === null || kb === undefined || kb === "" || Number(kb) === 0) { return ""; }
+  return (Number(kb) / 1024).toFixed(1) + " MB";
+}
+
+function verdictClass(verdict) {
+  switch (verdict) {
+    case "Accepted":
+    case "Success":
+      return "ok";
+    case "Wrong Answer":
+    case "Runtime Error":
+      return "bad";
+    case "Compilation Error":
+    case "Time Limit Exceeded":
+      return "warn";
+    default:
+      return "neutral";
+  }
+}
+
+function setServerStatus(kind, text) {
+  els.serverStatus.className = "status-pill" + (kind ? " " + kind : "");
+  els.serverStatusText.textContent = text;
+}
+
+/* ---------------------------------------------------------------------
+   Talking to the backend
+   --------------------------------------------------------------------- */
+async function apiRequest(method, path, body) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
+  let response;
+  try {
+    response = await fetch(API + path, {
+      method: method,
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal
+    });
+  } catch (err) {
+    setServerStatus("offline", "Server unreachable");
+    if (err && err.name === "AbortError") {
+      throw new Error("The server took too long to answer. Please try again.");
+    }
+    throw new Error("Could not reach the CodeForge server. If the site was idle, the free Render server may be waking up (this can take up to a minute). Please try again.");
+  } finally {
+    clearTimeout(timer);
+  }
+
+  let data = null;
+  try { data = await response.json(); } catch (e) { data = null; }
+
+  if (!response.ok) {
+    let message = "Server error (HTTP " + response.status + ").";
+    if (data && typeof data.detail === "string") {
+      message = data.detail;
+    } else if (data && Array.isArray(data.detail)) {
+      message = data.detail.map(function (d) { return d.msg || JSON.stringify(d); }).join("; ");
+    }
+    throw new Error(message);
+  }
+  setServerStatus("online", "Server online");
+  return data;
+}
+
+/* ---------------------------------------------------------------------
+   Editor (Monaco, with a plain textarea as a safety net)
+   --------------------------------------------------------------------- */
+function loadScript(src, timeoutMs) {
+  return new Promise(function (resolve, reject) {
+    const script = document.createElement("script");
+    const timer = setTimeout(function () { reject(new Error("Timed out loading " + src)); }, timeoutMs);
+    script.src = src;
+    script.onload = function () { clearTimeout(timer); resolve(); };
+    script.onerror = function () { clearTimeout(timer); reject(new Error("Could not load " + src)); };
+    document.head.appendChild(script);
+  });
+}
+
+async function createMonacoEditor() {
+  await loadScript(MONACO_BASE + "/vs/loader.js", 12000);
+
+  window.MonacoEnvironment = {
+    getWorkerUrl: function () {
+      const workerSource =
+        "self.MonacoEnvironment = { baseUrl: '" + MONACO_BASE + "/' };" +
+        "importScripts('" + MONACO_BASE + "/vs/base/worker/workerMain.js');";
+      return "data:text/javascript;charset=utf-8," + encodeURIComponent(workerSource);
+    }
+  };
+  window.require.config({ paths: { vs: MONACO_BASE + "/vs" } });
+
+  await new Promise(function (resolve, reject) {
+    const timer = setTimeout(function () { reject(new Error("Monaco took too long to load")); }, 15000);
+    window.require(["vs/editor/editor.main"], function () { clearTimeout(timer); resolve(); }, function (err) { clearTimeout(timer); reject(err); });
+  });
+
+  const monaco = window.monaco;
+  monaco.editor.defineTheme("codeforge", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#0e1117",
+      "editorGutter.background": "#0e1117",
+      "editor.lineHighlightBackground": "#151a23",
+      "editorLineNumber.foreground": "#4a5468",
+      "editorLineNumber.activeForeground": "#a3adc2"
+    }
+  });
+
+  const instance = monaco.editor.create(els.editorHost, {
+    value: "",
+    language: languageById(state.languageId).monaco,
+    theme: "codeforge",
+    automaticLayout: true,
+    lineNumbers: "on",
+    minimap: { enabled: false },
+    fontSize: 14,
+    fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace",
+    tabSize: 4,
+    insertSpaces: true,
+    scrollBeyondLastLine: false,
+    renderLineHighlight: "line",
+    padding: { top: 10, bottom: 10 },
+    wordWrap: "off"
+  });
+
+  instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () { runCode(); });
+  instance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter, function () { submitCode(); });
+  instance.onDidChangeModelContent(function () { onEditorChanged(); });
+
+  editor.kind = "monaco";
+  editor.impl = instance;
+  editor.getValue = function () { return instance.getValue(); };
+  editor.setValue = function (value) { instance.setValue(value); };
+  editor.setLanguage = function (monacoLanguage) {
+    monaco.editor.setModelLanguage(instance.getModel(), monacoLanguage);
+  };
+}
+
+function createTextareaEditor() {
+  const area = h("textarea", { class: "fallback-editor", spellcheck: "false", "aria-label": "Code editor" });
+  area.addEventListener("input", function () { onEditorChanged(); });
+  area.addEventListener("keydown", function (event) {
+    if (event.key === "Tab" && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      const start = area.selectionStart;
+      area.value = area.value.slice(0, start) + "    " + area.value.slice(area.selectionEnd);
+      area.selectionStart = area.selectionEnd = start + 4;
+      onEditorChanged();
+    }
+  });
+  els.editorHost.appendChild(area);
+
+  editor.kind = "textarea";
+  editor.impl = area;
+  editor.getValue = function () { return area.value; };
+  editor.setValue = function (value) { area.value = value; };
+  editor.setLanguage = function () {};
+}
+
+async function initEditor() {
+  try {
+    await createMonacoEditor();
+  } catch (err) {
+    console.warn("Monaco could not be loaded, using a simple editor instead.", err);
+    els.editorHost.textContent = "";
+    createTextareaEditor();
+    els.saveNote.textContent = "Basic editor (Monaco could not load). Code is saved per problem and language.";
+  }
+  els.editorLoading.style.display = "none";
+  editor.ready = true;
+  if (currentProblem()) { loadEditorContent(); }
+}
+
+/* ---------------------------------------------------------------------
+   Saving and loading the student's code (per problem AND per language)
+   --------------------------------------------------------------------- */
+let saveTimer = null;
+
+function saveCodeNow() {
+  if (!editor.ready || state.currentId === null) { return; }
+  store.set(codeKey(state.currentId, state.languageId), editor.getValue());
+}
+
+function onEditorChanged() {
+  if (editor.suppressChange) { return; }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function () {
+    saveCodeNow();
+    els.saveNote.textContent = "Saved.";
+  }, 400);
+  els.saveNote.textContent = "Editing...";
+}
+
+function loadEditorContent() {
+  const problem = currentProblem();
+  if (!problem || !editor.ready) { return; }
+  const saved = store.get(codeKey(problem.id, state.languageId));
+  const starter = (problem.starter_code && problem.starter_code[String(state.languageId)]) || "";
+  editor.suppressChange = true;
+  editor.setValue(saved !== null ? saved : starter);
+  editor.setLanguage(languageById(state.languageId).monaco);
+  editor.suppressChange = false;
+}
+
+function resetCode() {
+  const problem = currentProblem();
+  if (!problem || !editor.ready) { return; }
+  const ok = window.confirm("Reset to the starter code? Your current " + languageById(state.languageId).name + " code for this problem will be replaced.");
+  if (!ok) { return; }
+  store.remove(codeKey(problem.id, state.languageId));
+  loadEditorContent();
+  els.saveNote.textContent = "Reset to starter code.";
+}
+
+function changeLanguage(newId) {
+  if (newId === state.languageId) { return; }
+  saveCodeNow();                       // keep the student's code for the OLD language
+  state.languageId = newId;
+  store.set("language", String(newId));
+  loadEditorContent();                 // load saved code (or the starter) for the NEW language
+  els.saveNote.textContent = "Switched to " + languageById(newId).name + ". Your other code is saved.";
+}
+
+/* ---------------------------------------------------------------------
+   Sidebar (problem list, search, filters)
+   --------------------------------------------------------------------- */
+function renderFilterChips() {
+  const seen = ["All"];
+  state.problems.forEach(function (p) { if (seen.indexOf(p.difficulty) === -1) { seen.push(p.difficulty); } });
+  els.filterChips.textContent = "";
+  seen.forEach(function (name) {
+    els.filterChips.appendChild(h("button", {
+      class: "chip" + (state.difficulty === name ? " active" : ""),
+      type: "button",
+      text: name,
+      onclick: function () { state.difficulty = name; renderFilterChips(); renderProblemList(); }
+    }));
+  });
+}
+
+function renderProblemList() {
+  const query = state.search.trim().toLowerCase();
+  const shown = state.problems.filter(function (p) {
+    if (state.difficulty !== "All" && p.difficulty !== state.difficulty) { return false; }
+    if (!query) { return true; }
+    const haystack = (p.title + " " + p.tags.join(" ") + " " + p.id).toLowerCase();
+    return haystack.indexOf(query) !== -1;
+  });
+
+  els.problemList.textContent = "";
+  if (shown.length === 0) {
+    els.problemList.appendChild(h("li", { class: "list-message", text: "No problems match your search." }));
+  }
+  shown.forEach(function (p) {
+    const active = p.id === state.currentId;
+    els.problemList.appendChild(h("li", null,
+      h("button", {
+        class: "problem-item" + (active ? " active" : ""),
+        type: "button",
+        "aria-current": active ? "true" : null,
+        onclick: function () { selectProblem(p.id); }
+      },
+        h("span", { class: "problem-num", text: String(p.id) }),
+        h("span", { class: "problem-name", text: p.title, title: p.title }),
+        h("span", { class: "solved-mark", text: state.solved.has(p.id) ? "\u2713" : "", title: state.solved.has(p.id) ? "Solved" : "" }),
+        h("span", { class: "diff " + p.difficulty, text: p.difficulty })
+      )
+    ));
+  });
+
+  els.problemCount.textContent = shown.length + " of " + state.problems.length + " problems \u00B7 " + state.solved.size + " solved";
+}
+
+function showProblemListError(message) {
+  els.problemList.textContent = "";
+  els.problemList.appendChild(h("li", { class: "list-message" },
+    h("div", { text: message }),
+    h("button", { type: "button", text: "Try again", onclick: function () { loadProblems(); } })
+  ));
+  els.problemCount.textContent = "";
+}
+
+/* ---------------------------------------------------------------------
+   Problem panel
+   --------------------------------------------------------------------- */
+function renderProblem() {
+  const p = currentProblem();
+  els.problemPanel.textContent = "";
+  els.problemPanel.scrollTop = 0;
+  if (!p) {
+    els.problemPanel.appendChild(h("div", { class: "empty-state", text: "Select a problem from the list to begin." }));
+    return;
+  }
+
+  const panel = els.problemPanel;
+  panel.appendChild(h("h1", { class: "problem-title", text: p.id + ". " + p.title }));
+  panel.appendChild(h("div", { class: "meta-row" },
+    h("span", { class: "diff " + p.difficulty, text: p.difficulty }),
+    p.tags.map(function (tag) { return h("span", { class: "tag", text: tag }); })
+  ));
+
+  p.description.split("\n\n").forEach(function (paragraph) {
+    panel.appendChild(h("p", null, richText(paragraph)));
+  });
+
+  panel.appendChild(h("div", { class: "section-title", text: "Input format" }));
+  panel.appendChild(h("p", null, richText(p.input_format)));
+  panel.appendChild(h("div", { class: "section-title", text: "Output format" }));
+  panel.appendChild(h("p", null, richText(p.output_format)));
+
+  if (p.constraints && p.constraints.length) {
+    panel.appendChild(h("div", { class: "section-title", text: "Constraints" }));
+    panel.appendChild(h("ul", null, p.constraints.map(function (c) { return h("li", null, h("code", { text: c })); })));
+  }
+
+  panel.appendChild(h("div", { class: "section-title", text: "Examples" }));
+  p.examples.forEach(function (ex, index) {
+    panel.appendChild(h("div", { class: "example" },
+      h("div", { class: "example-head" },
+        h("span", { text: "Example " + (index + 1) }),
+        h("button", {
+          type: "button",
+          text: "Use as custom input",
+          onclick: function () { setCustomInput(ex.input); showTab("input"); }
+        })
+      ),
+      h("div", { class: "io-label", text: "Input" }),
+      h("pre", { class: "block", text: ex.input }),
+      h("div", { class: "io-label", text: "Output" }),
+      h("pre", { class: "block", text: ex.output }),
+      ex.explanation ? h("div", { class: "example-why" }, h("strong", { text: "Explanation: " }), richText(ex.explanation)) : null
+    ));
+  });
+
+  panel.appendChild(h("div", { class: "section-title", text: "Notes" }));
+  panel.appendChild(h("ul", null,
+    h("li", { text: "Read the input from standard input and print the answer to standard output." }),
+    h("li", { text: "Print only the answer. Extra text such as \"Enter a number:\" makes the answer wrong." }),
+    h("li", null, "Java solutions must use ", h("code", { text: "public class Main" }), ".")
+  ));
+}
+
+function setCustomInput(text) {
+  els.customInput.value = text;
+  if (state.currentId !== null) { store.set("input:" + state.currentId, text); }
+}
+
+function selectProblem(id) {
+  if (state.busy) { return; }
+  saveCodeNow();                         // keep what the student typed in the previous problem
+  state.currentId = id;
+  store.set("problem", String(id));
+
+  const p = currentProblem();
+  renderProblem();
+  renderProblemList();
+
+  const savedInput = store.get("input:" + id);
+  els.customInput.value = savedInput !== null ? savedInput : (p && p.examples.length ? p.examples[0].input : "");
+
+  loadEditorContent();
+  clearResult();
+  document.body.classList.remove("sidebar-open");
+}
+
+/* ---------------------------------------------------------------------
+   Tabs and result area
+   --------------------------------------------------------------------- */
+function showTab(name) {
+  const showInput = name === "input";
+  els.inputPane.hidden = !showInput;
+  els.resultPane.hidden = showInput;
+  els.tabInput.classList.toggle("active", showInput);
+  els.tabResult.classList.toggle("active", !showInput);
+}
+
+function clearResult() {
+  stopLoadingTimer();
+  els.resultContent.className = "result-muted";
+  els.resultContent.textContent = "Run your code or submit it to see the result here.";
+}
+
+function stopLoadingTimer() {
+  if (state.loadTimer) { clearInterval(state.loadTimer); state.loadTimer = null; }
+}
+
+function showLoading(message) {
+  stopLoadingTimer();
+  showTab("result");
+  const started = Date.now();
+  const text = h("span", { text: message });
+  els.resultContent.className = "";
+  els.resultContent.textContent = "";
+  els.resultContent.appendChild(h("div", { class: "loading" }, h("span", { class: "spinner" }), text));
+  state.loadTimer = setInterval(function () {
+    const seconds = Math.floor((Date.now() - started) / 1000);
+    let extra = "";
+    if (seconds >= 6) { extra = " The free server may be waking up, please wait..."; }
+    text.textContent = message + " (" + seconds + "s)" + extra;
+  }, 1000);
+}
+
+function setBusy(isBusy, which) {
+  state.busy = isBusy;
+  els.runBtn.disabled = isBusy;
+  els.submitBtn.disabled = isBusy;
+  els.resetBtn.disabled = isBusy;
+  els.languageSelect.disabled = isBusy;
+  els.runBtn.textContent = "";
+  els.submitBtn.textContent = "";
+  if (isBusy && which === "run") { els.runBtn.append(h("span", { class: "spinner" }), "Running..."); }
+  else { els.runBtn.append("\u25B6 Run Code"); }
+  if (isBusy && which === "submit") { els.submitBtn.append(h("span", { class: "spinner" }), "Judging..."); }
+  else { els.submitBtn.append("Submit"); }
+}
+
+function outputBlock(title, text, cssClass) {
+  return [
+    h("div", { class: "out-title", text: title }),
+    h("pre", { class: "block" + (cssClass ? " " + cssClass : ""), text: text })
+  ];
+}
+
+function renderError(error) {
+  stopLoadingTimer();
+  showTab("result");
+  els.resultContent.className = "";
+  els.resultContent.textContent = "";
+  els.resultContent.appendChild(h("div", { class: "error-box" },
+    h("strong", { text: "Something went wrong" }),
+    h("div", { text: error && error.message ? error.message : String(error) })
+  ));
+}
+
+function renderRunResult(data) {
+  stopLoadingTimer();
+  showTab("result");
+  const cls = verdictClass(data.verdict);
+  const meta = [formatTime(data.time), formatMemory(data.memory)].filter(Boolean).join(" \u00B7 ");
+
+  els.resultContent.className = "";
+  els.resultContent.textContent = "";
+  const box = els.resultContent;
+  box.appendChild(h("div", { class: "verdict " + cls, text: data.verdict === "Success" ? "Ran successfully" : data.verdict }));
+  if (data.status_description && data.status_description !== data.verdict && data.verdict !== "Success") {
+    box.appendChild(h("div", { class: "result-meta", text: data.status_description }));
+  }
+  if (meta) { box.appendChild(h("div", { class: "result-meta", text: meta })); }
+
+  if (data.compile_output) { box.append.apply(box, outputBlock("Compilation output", data.compile_output, "warn")); }
+  if (data.verdict === "Success" || data.stdout) {
+    box.append.apply(box, outputBlock("Output", data.stdout ? data.stdout : "(the program printed nothing)"));
+  }
+  if (data.stderr) { box.append.apply(box, outputBlock("Error output", data.stderr, "error")); }
+  if (data.message && !data.stderr && !data.compile_output) { box.append.apply(box, outputBlock("Message", data.message, "error")); }
+  if (data.verdict === "Time Limit Exceeded") {
+    box.appendChild(h("div", { class: "notice", text: "Your program ran for too long. Check for infinite loops or a slow algorithm." }));
+  }
+  if (data.hint) { box.appendChild(h("div", { class: "notice", text: data.hint })); }
+}
+
+function renderSubmitResult(data) {
+  stopLoadingTimer();
+  showTab("result");
+  const cls = verdictClass(data.verdict);
+  const meta = [
+    formatTime(data.max_time) ? "Max time " + formatTime(data.max_time) : "",
+    formatMemory(data.max_memory) ? "Max memory " + formatMemory(data.max_memory) : ""
+  ].filter(Boolean).join(" \u00B7 ");
+
+  els.resultContent.className = "";
+  els.resultContent.textContent = "";
+  const box = els.resultContent;
+  box.appendChild(h("div", { class: "verdict " + cls, text: data.verdict }));
+  box.appendChild(h("div", { class: "result-meta", text: data.passed + " / " + data.total + " test cases passed" + (meta ? " \u00B7 " + meta : "") }));
+
+  if (data.verdict === "Accepted") {
+    box.appendChild(h("div", { class: "notice", text: "Great job! Your solution passed every test case." }));
+  }
+  if (data.compile_output) { box.append.apply(box, outputBlock("Compilation output", data.compile_output, "warn")); }
+  if (data.stderr && data.verdict !== "Compilation Error") { box.append.apply(box, outputBlock("Error output", data.stderr, "error")); }
+  if (data.message && !data.stderr && !data.compile_output) { box.append.apply(box, outputBlock("Message", data.message, "error")); }
+  if (data.hint) { box.appendChild(h("div", { class: "notice", text: data.hint })); }
+
+  const list = h("div", { class: "case-list" });
+  (data.results || []).forEach(function (row) {
+    const badgeClass = row.passed ? "ok" : verdictClass(row.verdict);
+    const label = row.sample ? "Sample " + row.index : "Hidden test " + row.index;
+    const stats = [formatTime(row.time), formatMemory(row.memory)].filter(Boolean).join(" \u00B7 ");
+    const headKids = [
+      h("span", { class: "case-name", text: label }),
+      h("span", { class: "case-badge " + badgeClass, text: row.passed ? "Passed" : row.verdict }),
+      h("span", { class: "case-note", text: stats })
+    ];
+
+    if (row.sample) {
+      const body = h("div", { class: "case-body" },
+        outputBlock("Input", row.input),
+        outputBlock("Expected output", row.expected_output),
+        outputBlock("Your output", row.actual_output ? row.actual_output : "(nothing printed)"),
+        row.stderr ? outputBlock("Error output", row.stderr, "error") : null
+      );
+      const details = h("details", { class: "case-row" }, h("summary", null, headKids), body);
+      if (!row.passed && data.failed_test === row.index) { details.setAttribute("open", ""); }
+      list.appendChild(details);
+    } else {
+      list.appendChild(h("div", { class: "case-row" }, h("div", { class: "case-head" }, headKids)));
+    }
+  });
+  box.appendChild(list);
+
+  if (data.verdict === "Accepted") { markSolved(data.problem_id); }
+}
+
+function markSolved(problemId) {
+  state.solved.add(problemId);
+  store.set("solved", JSON.stringify(Array.from(state.solved)));
+  renderProblemList();
+}
+
+/* ---------------------------------------------------------------------
+   Run and Submit
+   --------------------------------------------------------------------- */
+function checkReadyToSend() {
+  if (state.busy) { return null; }
+  const problem = currentProblem();
+  if (!problem) { renderError(new Error("Please select a problem first.")); return null; }
+  if (!editor.ready) { renderError(new Error("The editor is still loading. Please wait a moment.")); return null; }
+  const code = editor.getValue();
+  if (!code.trim()) { renderError(new Error("Your editor is empty. Write some code first.")); return null; }
+  saveCodeNow();
+  return { problem: problem, code: code };
+}
+
 async function runCode() {
-    if (!selectedProblem) {
-        output.textContent = "Please select a problem first.";
-        return;
-    }
-    const button = document.getElementById("runBtn");
-    button.disabled = true;
-    output.className = "";
-    output.textContent = "Running your code...";
-
-    try {
-        const response = await fetch(`${API}/run`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                code: getCode(),
-                input: document.getElementById("customInput").value
-            })
-        });
-
-        const result = await response.json();
-
-        output.textContent =
-            `Status: ${result.status}\n\n` +
-            (result.output ? `Output:\n${result.output}` : "") +
-            (result.error ? `\nError:\n${result.error}` : "");
-
-        output.className = result.status === "Accepted" ? "accepted" : "failed";
-
-    } catch (error) {
-        output.textContent = "Could not connect to the execution server.";
-        output.className = "failed";
-    } finally {
-        button.disabled = false;
-    }
+  const ready = checkReadyToSend();
+  if (!ready) { return; }
+  setBusy(true, "run");
+  showLoading("Running your code...");
+  try {
+    const data = await apiRequest("POST", "/run", {
+      language_id: state.languageId,
+      source_code: ready.code,
+      stdin: els.customInput.value
+    });
+    renderRunResult(data);
+  } catch (error) {
+    renderError(error);
+  } finally {
+    setBusy(false);
+  }
 }
 
 async function submitCode() {
-    if (!selectedProblem) {
-        output.textContent = "Please select a problem first.";
-        return;
-    }
-
-    const button = document.getElementById("submitBtn");
-    button.disabled = true;
-    output.className = "";
-    output.textContent = "Submitting solution and checking test cases...";
-
-    try {
-        const response = await fetch(`${API}/submit`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                problem_id: selectedProblem.id,
-                code: getCode()
-            })
-        });
-
-        const result = await response.json();
-
-        let message =
-            `Status: ${result.status}\n` +
-            `Test cases passed: ${result.passed}/${result.total}\n\n`;
-
-        (result.results || []).forEach((test, index) => {
-            message += `Test ${index + 1}: ${test.status}\n`;
-
-            if (test.error) {
-                message += `Error: ${test.error}\n`;
-            }
-
-            message += "\n";
-        });
-
-        output.textContent = message;
-        output.className =
-            result.status === "Accepted" ? "accepted" : "failed";
-
-    } catch (error) {
-        console.error("Submit Code Error:", error);
-        output.textContent = "Error: " + error.message;
-        output.className = "failed";
-
-    } finally {
-        button.disabled = false;
-    }
+  const ready = checkReadyToSend();
+  if (!ready) { return; }
+  setBusy(true, "submit");
+  showLoading("Judging your solution against all test cases...");
+  try {
+    const data = await apiRequest("POST", "/submit", {
+      problem_id: ready.problem.id,
+      language_id: state.languageId,
+      source_code: ready.code
+    });
+    renderSubmitResult(data);
+  } catch (error) {
+    renderError(error);
+  } finally {
+    setBusy(false);
+  }
 }
 
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
-<script>
-require.config({
-    paths: {
-        vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs"
+/* ---------------------------------------------------------------------
+   Loading the problem list (retries because Render's free tier sleeps)
+   --------------------------------------------------------------------- */
+function wait(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+
+async function loadProblems() {
+  els.problemList.textContent = "";
+  els.problemList.appendChild(h("li", { class: "list-message", text: "Loading problems..." }));
+  setServerStatus("", "Connecting...");
+
+  let lastError = null;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      if (attempt > 1) { setServerStatus("", "Waking up server (try " + attempt + ")..."); }
+      const data = await apiRequest("GET", "/problems");
+      if (!Array.isArray(data) || data.length === 0) { throw new Error("The server returned no problems."); }
+      state.problems = data;
+      renderFilterChips();
+
+      const savedProblem = parseInt(store.get("problem"), 10);
+      const exists = data.some(function (p) { return p.id === savedProblem; });
+      selectProblem(exists ? savedProblem : data[0].id);
+      return;
+    } catch (error) {
+      lastError = error;
+      await wait(2500);
     }
-});
+  }
+  setServerStatus("offline", "Server unreachable");
+  showProblemListError((lastError && lastError.message) || "Could not load the problems.");
+}
 
-let editor;
+/* ---------------------------------------------------------------------
+   Start-up
+   --------------------------------------------------------------------- */
+function restoreSettings() {
+  const savedLanguage = parseInt(store.get("language"), 10);
+  if (LANGUAGES.some(function (l) { return l.id === savedLanguage; })) { state.languageId = savedLanguage; }
 
-require(["vs/editor/editor.main"], function () {
-    editor = monaco.editor.create(document.getElementById("code"), {
-        value: "# Select a problem to load starter code",
-        language: "python",
-        theme: "vs-dark",
-        automaticLayout: true,
-        minimap: { enabled: false },
-        fontSize: 14,
-        lineNumbers: "on",
-        roundedSelection: true,
-        scrollBeyondLastLine: false,
-        tabSize: 4,
-        wordWrap: "on"
-    });
-    loadProblems();
-});
+  try {
+    const solved = JSON.parse(store.get("solved") || "[]");
+    if (Array.isArray(solved)) { solved.forEach(function (id) { state.solved.add(id); }); }
+  } catch (e) { /* ignore broken saved data */ }
+}
+
+function buildLanguageSelect() {
+  els.languageSelect.textContent = "";
+  LANGUAGES.forEach(function (lang) {
+    els.languageSelect.appendChild(h("option", { value: String(lang.id), text: lang.name }));
+  });
+  els.languageSelect.value = String(state.languageId);
+}
+
+function bindEvents() {
+  els.menuBtn.addEventListener("click", function () { document.body.classList.toggle("sidebar-open"); });
+  els.sidebarBackdrop.addEventListener("click", function () { document.body.classList.remove("sidebar-open"); });
+  els.searchInput.addEventListener("input", function () { state.search = els.searchInput.value; renderProblemList(); });
+  els.languageSelect.addEventListener("change", function () { changeLanguage(parseInt(els.languageSelect.value, 10)); });
+  els.resetBtn.addEventListener("click", resetCode);
+  els.runBtn.addEventListener("click", runCode);
+  els.submitBtn.addEventListener("click", submitCode);
+  els.tabInput.addEventListener("click", function () { showTab("input"); });
+  els.tabResult.addEventListener("click", function () { showTab("result"); });
+  els.customInput.addEventListener("input", function () {
+    if (state.currentId !== null) { store.set("input:" + state.currentId, els.customInput.value); }
+  });
+  document.addEventListener("keydown", function (event) {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      if (event.shiftKey) { submitCode(); } else { runCode(); }
+    }
+  });
+  window.addEventListener("beforeunload", saveCodeNow);
+}
+
+function init() {
+  restoreSettings();
+  buildLanguageSelect();
+  bindEvents();
+  showTab("input");
+  initEditor();
+  loadProblems();
+}
+
+init();
 </script>
 </body>
 </html>
