@@ -231,7 +231,6 @@ button:disabled { opacity: .5; cursor: wait; }
         </div>
 
         <div id="code" style="flex:1; min-height:220px;"></div>
-            placeholder="Select a problem to load its starter code..."></textarea>
 
         <div class="input-area">
             <label for="customInput">Custom Input</label>
@@ -272,6 +271,9 @@ async function loadProblems() {
         if (!response.ok) throw new Error("Could not load problems");
 
         problems = await response.json();
+        if (!Array.isArray(problems)) {
+            throw new Error("The backend did not return a problem list.");
+        }
         problemList.innerHTML = "";
 
         problems.forEach(problem => {
@@ -292,7 +294,7 @@ async function loadProblems() {
         }
     } catch (error) {
         problemList.textContent = "Unable to load problems. Check the backend connection.";
-        console.error(error);
+        console.error("Load Problems Error:", error);
     }
 }
 
@@ -392,7 +394,7 @@ async function submitCode() {
             `Status: ${result.status}\n` +
             `Test cases passed: ${result.passed}/${result.total}\n\n`;
 
-        result.results.forEach((test, index) => {
+        (result.results || []).forEach((test, index) => {
             message += `Test ${index + 1}: ${test.status}\n`;
 
             if (test.error) {
